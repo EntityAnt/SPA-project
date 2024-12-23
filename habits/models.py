@@ -2,11 +2,25 @@ from django.db import models
 from rest_framework.exceptions import ValidationError
 
 from config.settings import NULLABLE
+from habits.validators import (
+    validate_reward_and_related_habit,
+    validate_duration,
+    validate_related_habit_pleasant,
+    validate_pleasant_habit,
+    validate_periodicity,
+    validate_habit_execution,
+)
 from users.models import User
 
 
 class Habit(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="user",
+        verbose_name="Создатель",
+        help_text="Укажите создателя привычки",
+    )
     action = models.CharField(
         max_length=255, verbose_name="Действие", help_text="Укажите действие"
     )
@@ -26,13 +40,20 @@ class Habit(models.Model):
         help_text="Признак приятной привычки",
     )
     related_habit = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, **NULLABLE, related_name="related_habits"
+        "self",
+        on_delete=models.SET_NULL,
+        **NULLABLE,
+        related_name="related_habits",
+        verbose_name="Связанная привычка",
+        help_text="Укажите связанную привычку"
     )
     periodicity = models.PositiveIntegerField(
         default=1, verbose_name="Периодичность", help_text="Укажите период повторения"
     )
     duration = models.PositiveIntegerField(
-        verbose_name="Продолжительность", help_text="Укажите продолжительность"
+        null=False,
+        verbose_name="Продолжительность",
+        help_text="Укажите продолжительность",
     )
     is_public = models.BooleanField(
         default=False, verbose_name="Публичность", help_text="Признак публичности"
@@ -46,15 +67,13 @@ class Habit(models.Model):
         verbose_name_plural = "Привычки"
 
     def clean(self):
-        if self.reward and self.related_habit:
-            raise ValidationError(
-                "Невозможно одновременно указать вознаграждение, и связанную с ним привычку."
-            )
-        if self.duration > 120:
-            raise ValidationError("Продолжительность не должна превышать 120 секунд.")
-        if self.pleasant_habit and (self.reward or self.related_habit):
-            raise ValidationError(
-                "Приятная привычка не может быть вознаграждением или связанной с ней привычкой."
-            )
-        if self.periodicity < 1 or self.periodicity > 7:
-            raise ValidationError("Периодичность должна составлять от 1 до 7 дней.")
+        validate_reward_and_related_habit(self)
+        validate_duration(self)
+        validate_related_habit_pleasant(self)
+        validate_pleasant_habit(self)
+        validate_periodicity(self)
+        validate_habit_execution(self)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
