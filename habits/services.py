@@ -1,8 +1,7 @@
+import requests
 from django.utils import timezone
 
-from config.settings import TELEGRAM_URL, TELEGRAM_BOT_TOKEN
-import requests
-
+from config.settings import TELEGRAM_BOT_TOKEN, TELEGRAM_URL
 from habits.models import Habit
 
 
@@ -12,9 +11,7 @@ def send_tg_message(message, chat_id):
         "text": message,
         "chat_id": chat_id,
     }
-    response = requests.get(
-        f"{TELEGRAM_URL}{TELEGRAM_BOT_TOKEN}/sendMessage", params=params
-    )
+    requests.get(f"{TELEGRAM_URL}{TELEGRAM_BOT_TOKEN}/sendMessage", params=params)
 
 
 def message_generator(user):

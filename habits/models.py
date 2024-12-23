@@ -1,15 +1,10 @@
 from django.db import models
-from rest_framework.exceptions import ValidationError
 
 from config.settings import NULLABLE
-from habits.validators import (
-    validate_reward_and_related_habit,
-    validate_duration,
-    validate_related_habit_pleasant,
-    validate_pleasant_habit,
-    validate_periodicity,
-    validate_habit_execution,
-)
+from habits.validators import (validate_duration, validate_habit_execution,
+                               validate_periodicity, validate_pleasant_habit,
+                               validate_related_habit_pleasant,
+                               validate_reward_and_related_habit)
 from users.models import User
 
 

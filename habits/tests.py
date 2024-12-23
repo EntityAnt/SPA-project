@@ -1,12 +1,13 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.contrib.auth import get_user_model
 
-from config.settings import TELEGRAM_URL, TELEGRAM_BOT_TOKEN
+from config.settings import TELEGRAM_BOT_TOKEN, TELEGRAM_URL
+
 from .models import Habit
 from .services import message_generator, send_tg_message
 from .tasks import reminder_of_habits
@@ -14,14 +15,16 @@ from .tasks import reminder_of_habits
 User = get_user_model()
 
 
-
 class ReminderOfHabitsTests(TestCase):
-    @patch('habits.tasks.send_tg_message')
-    @patch('habits.tasks.message_generator')
-    def test_reminder_of_habits_with_users(self, mock_message_generator, mock_send_tg_message):
+    @patch("habits.tasks.send_tg_message")
+    @patch("habits.tasks.message_generator")
+    def test_reminder_of_habits_with_users(
+        self, mock_message_generator, mock_send_tg_message
+    ):
         # Настраиваем тестовых пользователей
-        user_with_chat_id = User.objects.create(email='test@user1.ru', tg_chat_id='123456')
-        user_without_chat_id = User.objects.create(email='test@user2.ru', tg_chat_id=None)
+        user_with_chat_id = User.objects.create(
+            email="test@user1.ru", tg_chat_id="123456"
+        )
 
         # Настраиваем возвращаемое значение для message_generator
         mock_message_generator.return_value = {
@@ -34,28 +37,26 @@ class ReminderOfHabitsTests(TestCase):
         # Проверяем, что message_generator был вызван один раз
         mock_message_generator.assert_called_once_with(user=user_with_chat_id)
 
-
-
-
-
-    @patch('habits.tasks.send_tg_message')
-    @patch('habits.tasks.message_generator')
-    def test_reminder_of_habits_no_users(self, mock_message_generator, mock_send_tg_message):
+    @patch("habits.tasks.send_tg_message")
+    @patch("habits.tasks.message_generator")
+    def test_reminder_of_habits_no_users(
+        self, mock_message_generator, mock_send_tg_message
+    ):
         # Убедимся, что нет пользователей в базе данных
         self.assertEqual(User.objects.count(), 0)
         reminder_of_habits()
 
-
-
         # Проверяем, что send_tg_message не был вызван
         mock_send_tg_message.assert_not_called()
 
-    @patch('habits.tasks.send_tg_message')
-    @patch('habits.tasks.message_generator')
-    def test_reminder_of_habits_multiple_users(self, mock_message_generator, mock_send_tg_message):
+    @patch("habits.tasks.send_tg_message")
+    @patch("habits.tasks.message_generator")
+    def test_reminder_of_habits_multiple_users(
+        self, mock_message_generator, mock_send_tg_message
+    ):
         # Создаем нескольких пользователей
-        user1 = User.objects.create(email='test@user3.ru', tg_chat_id='123')
-        user2 = User.objects.create(email='test@user4.ru', tg_chat_id='456')
+        user1 = User.objects.create(email="test@user3.ru", tg_chat_id="123")
+        user2 = User.objects.create(email="test@user4.ru", tg_chat_id="456")
 
         # Настраиваем возвращаемое значение для message_generator
         mock_message_generator.side_effect = [
@@ -70,8 +71,12 @@ class ReminderOfHabitsTests(TestCase):
         self.assertEqual(mock_message_generator.call_count, 2)
 
         # Проверяем, что send_tg_message был вызван дважды с правильными параметрами
-        mock_send_tg_message.assert_any_call(message="Message for user 1", chat_id='123')
-        mock_send_tg_message.assert_any_call(message="Message for user 2", chat_id='456')
+        mock_send_tg_message.assert_any_call(
+            message="Message for user 1", chat_id="123"
+        )
+        mock_send_tg_message.assert_any_call(
+            message="Message for user 2", chat_id="456"
+        )
 
     def tearDown(self):
         # Очищаем базу данных после теста
