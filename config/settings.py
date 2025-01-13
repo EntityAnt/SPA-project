@@ -15,7 +15,7 @@ DEBUG = os.getenv("DEBUG", False) == "True"
 
 NULLABLE = {"blank": True, "null": True}
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
