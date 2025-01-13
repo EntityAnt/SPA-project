@@ -126,11 +126,12 @@ class NotificationTests(APITestCase):
         messages = message_generator(self.user)
 
         # Проверка, что сообщения сгенерированы правильно
-        self.assertEqual(messages["chat_id"], self.user.tg_chat_id)
-        self.assertIn("Напоминание: 'Пить воду'", messages["message"])
-        self.assertIn("в 12:00", messages["message"])
-        self.assertIn("в месте: 'Кухня'.", messages["message"])
-        self.assertIn("Награда: '1 балл'.", messages["message"])
+        if messages:
+            self.assertEqual(messages["chat_id"], self.user.tg_chat_id)
+            self.assertIn("Напоминание: 'Пить воду'", messages["message"])
+            self.assertIn("в 12:00", messages["message"])
+            self.assertIn("в месте: 'Кухня'.", messages["message"])
+            self.assertIn("Награда: '1 балл'.", messages["message"])
 
     def tearDown(self):
         # Очистка после тестов

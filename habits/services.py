@@ -15,8 +15,8 @@ def send_tg_message(message, chat_id):
 
 
 def message_generator(user):
-    """Функция генерирует сообщения пользователю с напоминаниями о прифычках."""
-    current_time = timezone.now().time()
+    """Функция генерирует сообщения пользователю с напоминаниями о привычках."""
+    current_time = timezone.now()
 
     habits = Habit.objects.filter(user=user, time__gte=current_time)
 
