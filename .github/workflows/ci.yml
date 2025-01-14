@@ -62,6 +62,10 @@ jobs:
     - name: Debug Environment Variables
       run: env
 
+    - name: Set environment variables
+      run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+
     - name: Run migrate
       run: python manage.py migrate
 
