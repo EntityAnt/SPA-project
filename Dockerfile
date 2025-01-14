@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+ARG SECRET_KEY
+ENV SECRET_KEY=$SECRET_KEY
+
 WORKDIR /app
 
 # Установка системных зависимостей
