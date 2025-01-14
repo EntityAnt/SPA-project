@@ -59,6 +59,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Debug Environment Variables
+      run: env
+
     - name: Run migrate
       run: python manage.py migrate
 
