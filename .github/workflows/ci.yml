@@ -1,7 +1,7 @@
 
 name: Django CI/CD Pipeline
 
-on: [push,]
+on: [push, pull_request]
 
 jobs:
   lint:
@@ -59,8 +59,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Debug Environment Variables
-      run: env
+#    - name: Debug Environment Variables
+#      run: env
 
     - name: Set environment variables
       run: | 
